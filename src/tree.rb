@@ -26,5 +26,14 @@ class Tree
     return result
   end
 
+  def print(offset)
+    offset.times {print ' '}
+    print value
+    puts
+    @children.each  do |child|
+      child.print offset+1
+    end
+  end
+
 end
 

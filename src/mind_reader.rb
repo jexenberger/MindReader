@@ -1,32 +1,30 @@
+#this class simply drives interaction with the user.
+#Is is solely responsible for driving user interaction, delegating atual questioning to the Question pattern, again showing SRP and DIP
+
 require_relative "question"
-require_relative "tree"
 
 class MindReader
 
-  def begin(&block)
+  def self.read_mind(&block)
     questions = Question.new("y", "an elephant")
     begin
-      process_branch(questions, &block)
+      do_line_of_questioning(questions, &block)
     end until block.call(:again,"Play again (y or n)").eql? 'n'
 
   end
 
-  def process_branch(question, &block)
+  def self.do_line_of_questioning(question, &block)
 
     result = question.ask_all(&block)
     if !result.nil?
-      new_questions =  process_question(result, &block)
-      if result.parent.nil?
-        question.replace new_questions
-      elsif
-        result.parent << new_questions
-      end
+      new_questions =  learn_new(result, &block)
+      result.apply_learning(new_questions)
     elsif
       puts "I win. Pretty smart aren't I"
     end
   end
 
-  def process_question(root_question, &block)
+  def self.learn_new(root_question, &block)
     puts "You win. Help me learn from my mistake before you go..."
     answer = block.call(:actual_thought, "what animal were you thinking of?")
     question = block.call(:distinguishing_question, "Give me a question to help distinguish #{answer} from #{root_question.question}")

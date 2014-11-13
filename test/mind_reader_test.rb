@@ -3,38 +3,24 @@ require "../src/mind_reader"
 
 class MindReaderTest < Test::Unit::TestCase
 
-  # Called before every test method runs. Can be used
-  # to set up fixture information.
-  def setup
-    # Do nothing
-  end
-
-  # Called after every test method runs. Can be used to tear
-  # down fixture information.
-
-  def teardown
-    # Do nothing
-  end
-
 
   def prompt(message)
     puts message
     return gets.rstrip
   end
 
-  # Fake test
   def test_begin
 
-    MindReader.new.begin { |step, prompt|
+    MindReader.begin { |step, prompt|
       return "y"
     }
 
   end
 
-  def test_process_branch
+  def test_do_line_of_questioning
     question = Question.new("y", "is it an elephant")
     puts question
-    MindReader.new.process_branch(question) { |step, prompt|
+    MindReader.do_line_of_questioning(question) { |step, prompt|
       return "y"
     }
   end

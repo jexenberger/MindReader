@@ -22,7 +22,7 @@ class QuestionTest < Test::Unit::TestCase
     root_question << Question.new("b","2")
     root_question << Question.new("c","3")
 
-    result = root_question.ask_all {|question|
+    result = root_question.ask_all {|state,question|
       result = nil
       result =  "a" if question.eql? "1"
       result
@@ -30,17 +30,17 @@ class QuestionTest < Test::Unit::TestCase
     #expect the first result to be something since we only got a result at the first level
     assert_not_nil result
     #expect the next line to be nil since we completed a line of questioning
-    assert_nil root_question.ask_all {|question|
+    assert_nil root_question.ask_all {|state, question|
       result =  "a" if question.eql? "1"
       result = "b" if question.eql? "2"
       result
     }
-    assert_nil root_question.ask_all {|question|
+    assert_nil root_question.ask_all {|state,question|
       result =  "a" if question.eql? "1"
       result = "c" if question.eql? "3"
       result
     }
-    first_failure =  root_question.ask_all {|question|
+    first_failure =  root_question.ask_all {|state,question|
       result = nil
       result = "x" if question.eql? "1"
       result
@@ -48,7 +48,7 @@ class QuestionTest < Test::Unit::TestCase
     assert_not_nil first_failure
     assert_equal "a", first_failure.answer
     # all wrong
-    second_failure = root_question.ask_all {|question|
+    second_failure = root_question.ask_all {|state,question|
       result =  "a" if question.eql? "1"
       result = "x" if question.eql? "2"
       result = "x" if question.eql? "3"

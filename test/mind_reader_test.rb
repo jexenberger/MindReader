@@ -32,9 +32,9 @@ class MindReaderTest < Test::Unit::TestCase
   end
 
   def test_process_branch
-    tree = Tree.new(Question.new("y", "is it an elephant"))
-    puts tree.value
-    MindReader.new.process_branch(tree) { |step, prompt|
+    question = Question.new("y", "is it an elephant")
+    puts question
+    MindReader.new.process_branch(question) { |step, prompt|
       return "y"
     }
   end

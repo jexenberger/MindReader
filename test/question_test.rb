@@ -3,18 +3,6 @@ require "../src/question"
 
 class QuestionTest < Test::Unit::TestCase
 
-  # Called before every test method runs. Can be used
-  # to set up fixture information.
-  def setup
-    # Do nothing
-  end
-
-  # Called after every test method runs. Can be used to tear
-  # down fixture information.
-
-  def teardown
-    # Do nothing
-  end
 
   # Fake test
   def test_correct?
@@ -23,21 +11,51 @@ class QuestionTest < Test::Unit::TestCase
   end
 
   def test_ask
-    assert Question.new("y","a test question").ask { |question| return "y" if question.eql? "a test question"}
+    result = Question.new("y","a test question").ask {
+        |question|  "y" if question.eql? "a test question"
+    }
+    assert_not_nil result
   end
 
   def test_ask_all
-    question = Question.new("a","1")
-    question << Question.new("b","2")
-    question << Question.new("c","3")
+    root_question = Question.new("a","1")
+    root_question << Question.new("b","2")
+    root_question << Question.new("c","3")
 
-    puts question.ask_all {|question| return "a" if question.eql? "1"}
-    assert true
-    assert question.ask_all {|question| return "b" if question.eql? "2"}
-    assert question.ask_all {|question| return "c" if question.eql? "3"}
-    assert !(question.ask_all {|question| return "x" if question.eql? "1"})
-    assert !(question.ask_all {|question| return "x" if question.eql? "2"})
-    assert !(question.ask_all {|question| return "x" if question.eql? "3"})
+    result = root_question.ask_all {|question|
+      result = nil
+      result =  "a" if question.eql? "1"
+      result
+    }
+    #expect the first result to be something since we only got a result at the first level
+    assert_not_nil result
+    #expect the next line to be nil since we completed a line of questioning
+    assert_nil root_question.ask_all {|question|
+      result =  "a" if question.eql? "1"
+      result = "b" if question.eql? "2"
+      result
+    }
+    assert_nil root_question.ask_all {|question|
+      result =  "a" if question.eql? "1"
+      result = "c" if question.eql? "3"
+      result
+    }
+    first_failure =  root_question.ask_all {|question|
+      result = nil
+      result = "x" if question.eql? "1"
+      result
+    }
+    assert_not_nil first_failure
+    assert_equal "a", first_failure.answer
+    # all wrong
+    second_failure = root_question.ask_all {|question|
+      result =  "a" if question.eql? "1"
+      result = "x" if question.eql? "2"
+      result = "x" if question.eql? "3"
+      result
+    }
+    assert_equal "c", second_failure.answer
+
 
   end
 end

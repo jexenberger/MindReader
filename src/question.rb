@@ -1,68 +1,45 @@
-require_relative "tree"
-
 class Question
 
-  ROOT_QUESTION = "animal"
+  attr_accessor :question
+  attr_reader :answer
+  attr_reader :children
 
-  attr_reader :guess
-  attr_reader :guess_result
-  attr_reader :guess_wrong
-  attr_reader :actual_thought
-  attr_reader :actual_thought_hint
-  attr_reader :actual_thought_answer
-
-  def initialize
-    @tree = Tree.new ROOT_QUESTION
-  end
-
-  def begin
-    yield(:begin, "think of an #{ROOT_QUESTION}")
+  def initialize(answer, question)
+    @question = question
+    @answer = answer
+    @children = []
   end
 
 
-  def get_guess
-    @guess = "elephant"
-    return "is it an #{@guess}"
+  def correct?(candidate_answer)
+    is_correct = @answer.eql? candidate_answer
+    puts is_correct
+    return is_correct
   end
 
-  def guess
-    @guess_result = yield(:guess, get_guess)
-    @guess_result
-  end
-
-  def guess_wrong
-    yield(:guess_wrong,"you win, help me learn from my mistake before you go...")
-  end
-
-  def actual_thought
-    @actual_thought = yield(:actual_thought, "What #{ROOT_QUESTION} were you thinking of?")
-  end
-
-  def actual_thought_hint
-    @actual_thought_hint = yield(:actual_thought_hint, "Give me a question to distinguish #{@actual_thought} from from an #{@guess}")
-  end
-
-  def actual_thought_answer
-    @actual_thought_answer = yield(:actual_thought_answer, "For #{@actual_thought}, what is the answer to your question? (y or n)" )
-  end
-
-
-  def run_dialog(&block)
-    self.begin &block
-    guess_result = self.guess(&block)
-    if guess_result.eql? 'n'
-      guess_wrong &block
-      actual_thought &block
-      actual_thought_hint &block
-      actual_thought_answer &block
-      @tree.child(@actual_thought_hint).child(@actual_thought_answer).child(@actual_thought)
+  def ask_all(&block)
+    is_right = ask(&block)
+    found = self
+    if (is_right && @children.size > 0)
+      @children.each do |child|
+        found = child.ask_all(&block)
+      end
+    elsif (is_right)
+      found = nil
     end
-    self
+    return found
   end
 
-  def dump
-    @tree.print 0
+  def ask(&block)
+    return correct? block.call( @question)
   end
 
+  def <<(child)
+    @children << child
+  end
+
+  def to_s
+    return @question+"->"+@answer
+  end
 
 end

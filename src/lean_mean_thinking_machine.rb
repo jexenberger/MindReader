@@ -1,35 +1,34 @@
 require_relative "tree"
+require_relative "question"
 
 class LeanMeanThinkingMachine
   # To change this template use File | Settings | File Templates.
 
-  ROOT_QUESTION =  "think of an animal"
-
-
+  ROOT_QUESTION = "animal"
 
   def initialize
-    tree = Tree.new(ROOT_QUESTION).child("Is it an Elephant?")
-    puts tree.find_by_value ROOT_QUESTION
-
-    @current_node = Tree.new(ROOT_QUESTION).child("Is it an Elephant?").find_by_value ROOT_QUESTION
-
+    @tree = Tree.new(ROOT_QUESTION)
   end
 
-  def next_question
-    question = @current_node.value
-    return question
-  end
-
-  def post_answer(question, answer)
-    question_node = @current_node.find_by_value question
-    if answer.eql? 'n'
-      hint = yield "You win. Help me learn from my mistake before you go...\nwhat animal were you thinking of?"
-      hint_answer = yield "For a #{hint} what is the answer to your question? (y or n)"
-      if hint_answer.eql? 'y'
-
+  def do_questioning(&block)
+    again = 'y'
+    begin
+      question = Question.new(@tree.value).run_dialog(&block)
+      if (question.guessed_correct?)
+        puts "NOT CORRECT!!!"
+        question.each_child do |child|
+          question = Question.new(child.value).run_dialog(&block)
+          if (!question.guessed_correct?)
+            child
+              .child(question.actual_thought_hint)
+              .child(question.actual_thought_answer)
+              .child(question.actual_thought)
+          end
+        end
       end
-
-    end
-    return nil
+      again = block.call(:continue, "Play again? (y or n)")
+    end until again.eql? 'n'
   end
+
+
 end

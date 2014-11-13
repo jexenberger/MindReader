@@ -17,21 +17,27 @@ class QuestionTest < Test::Unit::TestCase
   end
 
   # Fake test
-  def test_run_dialog
-     question = Question.new.run_dialog do |state, prompt|
-       puts "#{prompt}"
-       result = nil
-       result = "n" if state == :guess
-       result = "a rabbit" if state == :actual_thought
-       result
-     end
-     Question.new.run_dialog do |state, prompt|
-       puts "#{prompt}"
-       result = nil
-       result = "y" if state == :guess
-       result
-     end
-     question.dump
+  def test_correct?
+    assert Question.new("y","a test question").correct? "y"
+    assert !(Question.new("y","a test question").correct? "qweqw")
+  end
+
+  def test_ask
+    assert Question.new("y","a test question").ask { |question| return "y" if question.eql? "a test question"}
+  end
+
+  def test_ask_all
+    question = Question.new("a","1")
+    question << Question.new("b","2")
+    question << Question.new("c","3")
+
+    puts question.ask_all {|question| return "a" if question.eql? "1"}
+    assert true
+    assert question.ask_all {|question| return "b" if question.eql? "2"}
+    assert question.ask_all {|question| return "c" if question.eql? "3"}
+    assert !(question.ask_all {|question| return "x" if question.eql? "1"})
+    assert !(question.ask_all {|question| return "x" if question.eql? "2"})
+    assert !(question.ask_all {|question| return "x" if question.eql? "3"})
 
   end
 end

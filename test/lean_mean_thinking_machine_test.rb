@@ -21,7 +21,16 @@ class LeanMeanThinkingMachineTest < Test::Unit::TestCase
   end
 
   # Fake test
-  def test_next_question
-    puts LeanMeanThinkingMachine.new.next_question
+  def test_do_questioning
+    puts LeanMeanThinkingMachine.new.do_questioning { |state, prompt|
+      puts "#{state}:#{prompt}"
+      result = nil
+      result = 'n' if state.eql? :guess
+      result = nil if state.eql? :begin
+      result = 'a rabbit' if state.eql? :actual_thought
+      result = 'Is it a small animal?' if state.eql? :actual_thought_hint
+      result = 'y' if state.eql? :actual_thought_answer
+      return result
+    }
   end
 end

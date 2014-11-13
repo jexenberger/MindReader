@@ -1,6 +1,7 @@
 class Tree
 
-  attr_accessor :children, :value
+  attr_accessor :children
+  attr_accessor :value
 
   def initialize(value)
     @value = value
@@ -26,12 +27,18 @@ class Tree
     return result
   end
 
-  def print(offset)
+  def each_child
+    @children.each do |child|
+      yield(child)
+    end
+  end
+
+
+  def display(offset)
     offset.times {print ' '}
-    print value
-    puts
+    puts value
     @children.each  do |child|
-      child.print offset+1
+      child.display offset+1
     end
   end
 

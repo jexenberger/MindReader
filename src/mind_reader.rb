@@ -30,7 +30,7 @@ class MindReader
     question = block.call(:distinguishing_question, "Give me a question to help distinguish #{answer} from #{root_question.question}")
     begin
       question_answer = block.call(:answer, "For #{answer}, what is the answer to your question? (y or n)")
-    end until (question_answer.eql?("y") || question_answer.eql?("y"))
+    end until (question_answer.eql?("y") || question_answer.eql?("n"))
     questions = Question.new("y", question)
     questions << Question.new(question_answer, answer)
     puts "Thanks"

@@ -39,7 +39,7 @@ class Question
     is_right = ask(&block)
     found = self
     if is_right && @children.size > 0
-      @children.each do | child |
+      @children.reverse.each do | child |
         result = child.ask_all(&block)
         found = result
         break if result.nil?
